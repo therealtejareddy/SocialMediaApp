@@ -1,0 +1,60 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model dynamic
+@{
+    List<FollowsModel> followsData = Model.followData;
+}
+@*@model IEnumerable<SocialMediaApp.Areas.Identity.Data.SocialMediaAppUser>*@
+<div class="flex flex-wrap justify-center">
+    @foreach (var user in Model.users)
+    {
+		<div class="card my-4 mx-4  min-w-sm bg-gradient-to-tr from-amber-200 to-cyan-300 w-96 rounded-md transition-shadow shadow-xl hover:shadow-xl min-w-max">
+			<div class="w-full card__media border-none"><img src="@user.coverPicURL" class="h-40 w-96"></div>
+			<div class="card__media--aside "></div>
+			<div class="flex items-center p-4">
+				<div class="relative flex flex-col items-center w-full">
+					<div class="h-24 w-24 md rounded-full relative avatar flex items-end justify-end text-purple-600 min-w-max absolute -top-16 flex bg-gray-200 text-purple-100 row-start-1 row-end-3 text-purple-650 ring-1 ring-white">
+						@if (@user.profilePicURL!=null)
+						{
+							<img class="h-24 w-24 md rounded-full relative" src="@user.profilePicURL" alt="">
+						}else
+						{
+							<img class="h-24 w-24 md rounded-full relative" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="">
+						}
+						<div class="absolute"></div>
+					</div>
+					<div class="flex flex-col space-y-1 justify-center items-center -mt-12 w-full">
+						<span class="text-md whitespace-nowrap text-gray-800 font-semibold">@user.fullName</span><span class="text-md whitespace-nowrap text-gray-600">@user.UserName</span>
+						<div class="py-2 flex space-x-2">
+@*							<button class="flex justify-center  max-h-max whitespace-nowrap focus:outline-none  focus:ring  focus:border-blue-300 rounded max-w-max border bg-transparent border-purple-700 text-purple-700 hover:border-purple-800 hover:border-purple-800 px-4 py-1 flex items-center hover:shadow-lg">
+								<span class="mr-2"></span>FOLLOW<span class="ml-2"></span>
+							</button>*@
+							@if (followsData.FindAll(data => data.FollowingUserId == user.Id).ToList().Count != 0)
+							{
+
+								<form asp-action="UnFollow">
+									<input value="@user.Id" hidden name="user-id">
+									<button type="submit" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Unfollow</button>
+								</form>
+							}
+							else
+							{
+								<form asp-action="Follow">
+									<input value="@user.Id" hidden name="user-id">
+									<button type="submit" class="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Follow</button>
+								</form>
+							}
+							<a href="/GetUser/@user.Id" class="cursor-pointer text-white bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">View Profile</a>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+    }
+</div>
+
+
+

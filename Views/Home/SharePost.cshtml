@@ -1,0 +1,171 @@
+﻿@using SocialMediaApp.Areas.Identity.Data
+@model dynamic
+
+@{
+    ViewData["Title"] = "SharePost";
+    List<SocialMediaAppUser> allUsers = Model.allUsers;
+    PostDto item = Model.post;
+}
+
+<div class="px-80 flex">
+    <div class="w-[32rem] h-screen">
+        <div class="mt-4 mb-8 shadow-[8px_8px_12px_6px_#cbd5e0]">
+            <div>
+                <div class="p-2 flex justify-start items-center bg-blue-300">
+                    <a href="/GetUser/@item.userId">
+                        @if (item.user.profilePicURL != null)
+                        {
+                            <img class="h-12 w-12 rounded-full inline-block" src="@item.user.profilePicURL" />
+                        }
+                        else
+                        {
+                            <img class="h-12 w-12 rounded-full inline-block" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" />
+                        }
+                        <span class="pl-3">@item.user.uname</span>
+                    </a>
+                </div>
+            </div>
+            <div>
+                @if (item.Body.Length > 0)
+                {
+                    <div class="py-1 px-3">
+                        @if (item.Body.StartsWith("#"))
+                        {
+                            @if (item.Body.IndexOf("#") > -1)
+                            {
+                                @foreach (var tag in item.Body.Substring(item.Body.IndexOf("#")).Split(" "))
+                                {
+                                    <a class="text-sky-800 font-medium" href="/SearchPost/@tag.Substring(1)">@tag</a>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            @item.Body.Substring(0,item.Body.IndexOf("#")>0?item.Body.IndexOf("#"):item.Body.Length)
+                            @if (item.Body.IndexOf("#") > 0)
+                            {
+                                @foreach (var tag in item.Body.Substring(item.Body.IndexOf("#")).Split(" "))
+                                {
+                                    <a class="text-sky-800 font-medium" href="/SearchPost/@tag.Substring(1)">@tag</a>
+                                }
+                            }
+                        }
+                    </div>
+                }
+                @if (item.Image.Length > 0)
+                {
+                    <div class="h-80 w-full">  <img class="h-full w-full" src="@item.Image"></div>
+                }
+            </div>
+            <div class="bg-gradient-to-r from-blue-200 to-cyan-200">
+                <div class="px-10">
+                    @item.likesCount Likes,
+                    <span data-modal-target="medium-modal-@item.PostId" data-modal-toggle="medium-modal-@item.PostId">@item.comments.Count Comments</span>
+                </div>
+                <div class="w-full flex justify-between items-center px-10 pb-2">
+                    <div>
+                        <form asp-action="LikePost">
+                            <input name="postId" value="@item.PostId" hidden>
+                            @if (item.liked == true)
+                            {
+                                <button type="submit" class="flex-row flex-col justify-center items-center">
+                                    <i class="material-icons md-36 text-red-500">
+                                        favorite
+                                    </i>
+                                </button>
+
+                            }
+                            else
+                            {
+                                <button type="submit" class="flex flex-col">
+                                    <i class="material-icons md-36">
+                                        favorite_border
+                                    </i>
+                                </button>
+                            }
+                        </form>
+
+                    </div>
+                    <div class="commentTip">Comment</div>
+                    <div>
+                        <span class="share-btn" data-link="/SharePost/@item.PostId">Share</span>
+                    </div>
+                </div>
+                <div class="h-0 invisible px-3 comment-tip">
+                    <form asp-action="CommentPost">
+                        <label for="search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Comment</label>
+                        <div class="relative">
+                            <input name="postId" value="@item.PostId" hidden>
+                            <input type="text" id="comment" name="commentText" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Add Your Comment" required>
+                            <button type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div id="medium-modal-@item.PostId" tabindex="-1" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative w-full max-w-lg max-h-full">
+                <!-- Modal content -->
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <!-- Modal header -->
+                    <div class="flex items-center justify-between p-5 border-b rounded-t dark:border-gray-600">
+                        <h3 class="text-xl font-medium text-gray-900 dark:text-white">
+                            Comments
+                        </h3>
+                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="medium-modal-@item.PostId">
+                            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+                    <!-- Modal body -->
+                    <div class="p-6 space-y-6 overflow-y-auto h-[25rem]">
+                        @foreach (CommentsModel cmt in item.comments)
+                        {
+                            SocialMediaAppUser cmtuser = allUsers.Where(u => u.Id == cmt.UserId).First();
+
+                            <div class="flex justify-start items-center space-x-4">
+                                @if (@cmtuser.profilePicURL != null)
+                                {
+                                    <img src="@cmtuser.profilePicURL" alt="user profile pic" class="h-12 w-12 rounded-full">
+                                }
+                                else
+                                {
+                                    <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="user profile pic" class="h-12 w-12 rounded-full">
+                                }
+
+                                <div>
+                                    <p class="text-gray-500 font-md">@cmtuser.uname</p>
+                                    <p>@cmt.Text</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+                        <button data-modal-hide="medium-modal-@item.PostId" type="button" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ml-12 mt-12 relative">
+        <partial name="./../Shared/_AddPostAndSearch.cshtml" />
+    </div>
+</div>
+
+<script>
+    let btns = document.querySelectorAll(".share-btn");
+    btns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            navigator.clipboard.writeText(window.origin + btn.dataset.link);
+        })
+    })
+    let commentTip = document.querySelectorAll(".commentTip");
+    commentTip.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            console.log(e.target.parentElement)
+            let ct = e.target.parentElement.nextElementSibling
+            ct.className = "h-10 visible mb-2 comment-tip px-1 pb-2"
+        })
+    })
+</script>
